@@ -30,4 +30,13 @@ const login = async (req, res) => {
     }
 };
 
-module.exports = { test, register, login };
+const logout = (req, res) => {
+    try {
+        res.clearCookie("token");
+        res.json({ message: 'User logged out successfully' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+module.exports = { test, register, login, logout };
