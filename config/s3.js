@@ -14,7 +14,7 @@ const uploadFile = async (file) => {
     Key: `products/${Date.now()}_${file.originalname}`,
     Body: file.buffer,
     ContentType: file.mimetype,
-    //ACL: "public-read", //find a way to show img
+    ACL: "public-read",
   };
 
   try {

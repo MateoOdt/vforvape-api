@@ -1,9 +1,4 @@
 const Product = require('../models/productModel');
-const multer = require("multer");
-const { uploadFile } = require("../config/s3");
-
-const storage = multer.memoryStorage();
-const upload = multer({ storage });
 
 const getProducts = async (req, res) => {
     try {
@@ -11,7 +6,12 @@ const getProducts = async (req, res) => {
   
       const query = category ? { category } : {};
   
-      const products = await Product.find(query);
+    const options = {
+        page: req.query.page || 1,
+        limit: req.query.limit || 10
+    };
+
+    const products = await Product.paginate(query, options);
   
       res.json(products);
     } catch (error) {
