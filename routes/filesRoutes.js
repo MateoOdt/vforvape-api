@@ -34,6 +34,8 @@ const uploadFileController = async (req, res) => {
   }
 };
 
+///Todo: Handle delete file from S3
+
 router.post("/upload", upload.single("file"), uploadFileController);
 
 module.exports = router;

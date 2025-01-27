@@ -7,7 +7,8 @@ const productSchema = new mongoose.Schema({
   category: { type: String, required: true },
   price: { type: Number, required: false },
   image: { type: String, required: true },
-});
+  isFavorite: { type: Boolean, default: false },
+}, { timestamps: true }); 
 
 productSchema.plugin(mongoosePaginate);
 

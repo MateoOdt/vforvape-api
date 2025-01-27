@@ -27,4 +27,6 @@ const uploadFile = async (file) => {
   }
 };
 
+///Todo: Handle delete file from S3
+
 module.exports = { uploadFile };

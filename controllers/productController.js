@@ -6,10 +6,10 @@ const getProducts = async (req, res) => {
   
       const query = category ? { category } : {};
   
-    const options = {
-        page: req.query.page || 1,
-        limit: req.query.limit || 10
-    };
+        const options = {
+            page: req.query.page || 1,
+            limit: req.query.limit || 10
+        };
 
     const products = await Product.paginate(query, options);
   
@@ -23,7 +23,6 @@ const getProducts = async (req, res) => {
 const createProduct = async (req, res) => {
     try {
         const { name, description, category, price, image } = req.body;
-        console.log(name, description, category, price, image);
 
         if (!name || !description || !category || !image) {
             return res.status(400).json({ error: "All fields are required" });
@@ -35,6 +34,7 @@ const createProduct = async (req, res) => {
             category,
             price,
             image,
+            isFavorite: false
         });
 
         res.status(201).json(product);
@@ -62,4 +62,48 @@ const deleteProduct = async (req, res) => {
     }
 };
 
-module.exports = { getProducts, createProduct, updateProduct, deleteProduct };
+const markAsFavorite = async (req, res) => {
+    try {
+      const { id } = req.params;
+  
+      const product = await Product.findById(id);
+      if (!product) {
+        return res.status(404).json({ error: "Product not found" });
+      }
+  
+      if (product.isFavorite) {
+        return res.status(400).json({ error: "Product is already marked as favorite" });
+      }
+  
+      const favoriteCount = await Product.countDocuments({ isFavorite: true });
+  
+      if (favoriteCount >= 10) {
+        const oldestFavorite = await Product.findOne({ isFavorite: true }).sort({ updatedAt: 1 });
+        if (oldestFavorite) {
+          oldestFavorite.isFavorite = false;
+          await oldestFavorite.save();
+        }
+      }
+  
+      product.isFavorite = true;
+      await product.save();
+  
+      res.json({ message: "Product marked as favorite", product });
+    } catch (error) {
+      console.error("Error marking product as favorite:", error.message);
+      res.status(500).json({ error: error.message });
+    }
+  };
+  
+  const getFavorites = async (req, res) => {
+    try {
+      const favorites = await Product.find({ isFavorite: true });
+      res.json(favorites);
+    } catch (error) {
+      console.error("Error fetching favorite products:", error.message);
+      res.status(500).json({ error: error.message });
+    }
+  };
+  
+
+module.exports = { getProducts, createProduct, updateProduct, deleteProduct, markAsFavorite, getFavorites };
