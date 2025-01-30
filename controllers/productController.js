@@ -63,36 +63,52 @@ const deleteProduct = async (req, res) => {
 };
 
 const markAsFavorite = async (req, res) => {
-    try {
-      const { id } = req.params;
-  
-      const product = await Product.findById(id);
-      if (!product) {
+  try {
+    const { id } = req.params;
+    const { isFavorite } = req.body;
+
+
+    if (typeof isFavorite !== "boolean") {
+        return res.status(400).json({ error: "isFavorite field is required and must be a boolean" });
+    }
+
+    const product = await Product.findById(id);
+    if (!product) {
         return res.status(404).json({ error: "Product not found" });
-      }
-  
-      if (product.isFavorite) {
+    }
+
+    if (!isFavorite) {
+        if (!product.isFavorite) {
+            return res.status(400).json({ error: "Product is not marked as favorite" });
+        }
+        product.isFavorite = false;
+        await product.save();
+        return res.json({ message: "Product unmarked as favorite", product });
+    }
+
+    if (product.isFavorite) {
         return res.status(400).json({ error: "Product is already marked as favorite" });
-      }
-  
-      const favoriteCount = await Product.countDocuments({ isFavorite: true });
-  
-      if (favoriteCount >= 10) {
+    }
+
+    const favoriteCount = await Product.countDocuments({ isFavorite: true });
+
+    if (favoriteCount >= 10) {
         const oldestFavorite = await Product.findOne({ isFavorite: true }).sort({ updatedAt: 1 });
         if (oldestFavorite) {
-          oldestFavorite.isFavorite = false;
-          await oldestFavorite.save();
+            oldestFavorite.isFavorite = false;
+            await oldestFavorite.save();
         }
-      }
-  
-      product.isFavorite = true;
-      await product.save();
-  
-      res.json({ message: "Product marked as favorite", product });
-    } catch (error) {
-      console.error("Error marking product as favorite:", error.message);
-      res.status(500).json({ error: error.message });
     }
+
+    product.isFavorite = true;
+    await product.save();
+
+    res.json({ message: "Product marked as favorite", product });
+    } catch (error) {
+        console.error("Error toggling favorite status:", error.message);
+        res.status(500).json({ error: error.message });
+    }
+
   };
   
   const getFavorites = async (req, res) => {
