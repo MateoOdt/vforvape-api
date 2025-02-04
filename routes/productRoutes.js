@@ -6,7 +6,7 @@ const router = express.Router();
 
 router.get('/', getProducts);
 router.post('/', protect, admin, createProduct);
-router.put('/:id', protect, admin, updateProduct);
+router.patch('/:id', protect, admin, updateProduct);
 router.delete('/:id', protect, admin, deleteProduct);
 router.patch('/:id/favorite', protect, admin, markAsFavorite);
 router.get('/favorites', getFavorites);
