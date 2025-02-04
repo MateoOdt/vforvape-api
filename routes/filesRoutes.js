@@ -1,7 +1,7 @@
 // Import dependencies
 const express = require("express");
 const multer = require("multer");
-const { uploadFile } = require("../config/s3");
+const { uploadFile, deleteFile } = require("../config/s3");
 const sharp = require("sharp");
 
 const router = express.Router();
@@ -34,8 +34,24 @@ const uploadFileController = async (req, res) => {
   }
 };
 
-///Todo: Handle delete file from S3
+const deleteFileController = async (req, res) => {
+  try {
+    const { fileUrl } = req.body;
+
+    if (!fileUrl) {
+      return res.status(400).json({ message: "File URL is required" });
+    }
+
+    const result = await deleteFile(fileUrl);
+
+    res.status(200).json(result);
+  } catch (error) {
+    console.error("Error deleting file:", error);
+    res.status(500).json({ message: "Error deleting file", error: error.message });
+  }
+};
 
 router.post("/upload", upload.single("file"), uploadFileController);
+router.delete("/delete", deleteFileController);
 
 module.exports = router;

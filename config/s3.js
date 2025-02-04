@@ -1,4 +1,4 @@
-const { S3Client, PutObjectCommand } = require("@aws-sdk/client-s3");
+const { S3Client, PutObjectCommand, DeleteObjectCommand } = require("@aws-sdk/client-s3");
 
 const s3Client = new S3Client({
   region: process.env.AWS_REGION,
@@ -27,6 +27,29 @@ const uploadFile = async (file) => {
   }
 };
 
-///Todo: Handle delete file from S3
+const deleteFile = async (fileUrl) => {
+  try {
+    const bucketName = process.env.AWS_BUCKET_NAME;
 
-module.exports = { uploadFile };
+    const fileKey = fileUrl.split(`${bucketName}.s3.${process.env.AWS_REGION}.amazonaws.com/`)[1];
+
+    if (!fileKey) {
+      throw new Error("Invalid file URL");
+    }
+
+    const params = {
+      Bucket: bucketName,
+      Key: fileKey,
+    };
+
+    const command = new DeleteObjectCommand(params);
+    await s3Client.send(command);
+
+    return { success: true, message: "File deleted successfully" };
+  } catch (error) {
+    console.error("Error deleting file from S3:", error);
+    throw new Error("Failed to delete file");
+  }
+};
+
+module.exports = { uploadFile, deleteFile };
