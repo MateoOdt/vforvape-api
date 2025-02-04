@@ -3,6 +3,7 @@ const express = require("express");
 const multer = require("multer");
 const { uploadFile, deleteFile } = require("../config/s3");
 const sharp = require("sharp");
+const { protect, admin } = require('../middlewares/authMiddleware');
 
 const router = express.Router();
 
@@ -51,7 +52,7 @@ const deleteFileController = async (req, res) => {
   }
 };
 
-router.post("/upload", upload.single("file"), uploadFileController);
-router.delete("/delete", deleteFileController);
+router.post("/upload", protect, admin, upload.single("file"), uploadFileController);
+router.delete("/delete", protect, admin, deleteFileController);
 
 module.exports = router;
