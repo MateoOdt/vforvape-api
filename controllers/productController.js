@@ -1,17 +1,24 @@
 const Product = require('../models/productModel');
-
 const getProducts = async (req, res) => {
     try {
-      const { category } = req.query;
+      const { category, search, page = 1, limit = 10 } = req.query;
   
-      const query = category ? { category } : {};
+      const query = {};
   
-        const options = {
-            page: req.query.page || 1,
-            limit: req.query.limit || 10
-        };
-
-    const products = await Product.paginate(query, options);
+      if (category) {
+        query.category = category;
+      }
+  
+      if (search) {
+        query.name = { $regex: search, $options: 'i' }; // case-insensitive search
+      }
+  
+      const options = {
+        page,
+        limit,
+      };
+  
+      const products = await Product.paginate(query, options);
   
       res.json(products);
     } catch (error) {
