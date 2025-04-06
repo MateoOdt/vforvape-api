@@ -10,7 +10,7 @@ const getProducts = async (req, res) => {
       }
   
       if (search) {
-        query.name = { $regex: search, $options: 'i' }; // case-insensitive search
+        query.name = { $regex: search, $options: 'i' };
       }
   
       const options = {
