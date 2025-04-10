@@ -4,11 +4,15 @@ const mongoosePaginate = require('mongoose-paginate-v2');
 const productSchema = new mongoose.Schema({
   name: { type: String, required: true },
   description: { type: String, required: true },
-  category: { type: String, required: true },
+  category: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Category',
+    required: true,
+  },
   price: { type: Number, required: false },
   image: { type: String, required: true },
   isFavorite: { type: Boolean, default: false },
-}, { timestamps: true }); 
+}, { timestamps: true });
 
 productSchema.plugin(mongoosePaginate);
 
